@@ -1,7 +1,7 @@
 const jwt = require("jsonwebtoken");
 require("dotenv").config();
 
-function userAuth(req, res, next) {
+function adminAuth(req, res, next) {
   const token = req.headers.token;
   if (!token) {
     return res.status(400).json({
@@ -9,6 +9,7 @@ function userAuth(req, res, next) {
     });
   }
   const decodeData = jwt.verify(token, process.env.JWT_SECRET);
+  console.log(decodeData);
   if (!decodeData) {
     return res.status(403).json({
       message: "Unauthorised Access!",
@@ -20,5 +21,5 @@ function userAuth(req, res, next) {
 }
 
 module.exports = {
-  userAuth,
+  adminAuth,
 };
