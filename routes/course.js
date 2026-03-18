@@ -1,11 +1,11 @@
 const { Router } = require("express");
 
-const userRouter = Router();
+const courseRouter = Router();
 
-userRouter.post("/purchase", function (req, res) {});
+courseRouter.post("/purchase", function (req, res) {});
 
-userRouter.get("/preview", function (req, res) {});
+courseRouter.get("/preview", function (req, res) {});
 
 module.exports = {
-  userRouter: userRouter,
+  courseRouter: courseRouter,
 };

@@ -92,7 +92,8 @@ adminRouter.post("/login", async function (req, res) {
 });
 
 adminRouter.post("/course", adminAuth, async function (req, res) {
-  const requiredBody = z.object({
+  try {
+    const requiredBody = z.object({
     title: z.string().min(5).max(30),
     discription: z.string().min(5).max(100),
     price: z.string().min(3).max(30),
@@ -121,9 +122,67 @@ adminRouter.post("/course", adminAuth, async function (req, res) {
     message: "New Course is added",
     newCourse,
   });
+  } catch (error) {
+    console.log(error);
+    res.status(500).json({
+      message: "Internal server error",
+      Error: error,
+    });
+  }
 });
 
-adminRouter.put("/course", function (req, res) {});
+adminRouter.put("/course/:_id", adminAuth, async function (req, res) {
+  try {
+    const requiredBody = z.object({
+    title: z.string().min(5).max(30),
+    discription: z.string().min(5).max(100),
+    price: z.string().min(3).max(30),
+    imageURL: z.string().min(3).max(300),
+  });
+  const parsedataWithSuccess = requiredBody.safeParse(req.body);
+  if (!parsedataWithSuccess.success) {
+    return res.status(400).json({
+      message: "Incorrect format",
+      error: parsedataWithSuccess.error.issues,
+    });
+  }
+  const creatorId = req.userId;
+  const courseId = req.params._id;
+  const { title, discription, price, imageURL } = parsedataWithSuccess.data;
+
+  const findCourse = await courseModel.findOneAndUpdate(
+    {
+      _id: courseId,
+      creatorId: creatorId,
+    },
+    {
+      title,
+      discription,
+      price,
+      imageURL,
+    },
+    {
+      new: true,
+    },
+  );
+  if (!findCourse) {
+    return res.status(400).json({
+      massage: "Course not found!",
+    });
+  }
+
+  res.status(201).json({
+    message: "Updated Course details",
+    findCourse,
+  });
+  } catch (error) {
+    console.log(error);
+    res.status(500).json({
+      message: "Internal server error",
+      Error: error,
+    });
+  }
+});
 
 adminRouter.delete("/course", function (req, res) {});
 
