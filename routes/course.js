@@ -1,6 +1,6 @@
 const { Router } = require("express");
 const { userAuth } = require("../middlewares/userAuth.js");
-const { purchaseModel } = require("../db.js");
+const { purchaseModel, courseModel } = require("../db.js");
 
 const courseRouter = Router();
 
@@ -30,8 +30,18 @@ courseRouter.post("/purchase/:_id", userAuth,async  function (req, res) {
   }
 });
 
-courseRouter.get("/preview", function (req, res) {
-  
+courseRouter.get("/preview",async function (req, res) {
+  try {
+    const allCourses = await courseModel.find({});
+  res.status(200).json({
+    allCourses
+  })
+  } catch (error) {
+    res.status(500).json({
+      message : "Internal server error",
+      Error : error
+    })
+  }
 });
 
 module.exports = {
