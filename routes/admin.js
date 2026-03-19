@@ -76,7 +76,7 @@ adminRouter.post("/login", async function (req, res) {
       {
         id: findUser._id,
       },
-      process.env.JWT_SECRET,
+      process.env.JWT_ADMIN_SECRET,
     );
     res.status(200).json({
       message: "You are loged in",

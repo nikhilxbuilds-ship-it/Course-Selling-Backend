@@ -8,7 +8,7 @@ function userAuth(req, res, next) {
       message: "Token not found!",
     });
   }
-  const decodeData = jwt.verify(token, process.env.JWT_SECRET);
+  const decodeData = jwt.verify(token, process.env.JWT_USER_SECRET);
   if (!decodeData) {
     return res.status(403).json({
       message: "Unauthorised Access!",
