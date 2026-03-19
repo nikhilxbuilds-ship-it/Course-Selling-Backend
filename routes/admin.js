@@ -2,6 +2,7 @@ const { z } = require("zod");
 const { Router } = require("express");
 const { adminModel, courseModel } = require("../db.js");
 const jwt = require("jsonwebtoken");
+const bcrypt = require("bcrypt");
 const { adminAuth } = require("../middlewares/adminAuth.js");
 require("dotenv").config();
 
@@ -25,10 +26,10 @@ adminRouter.post("/signup", async function (req, res) {
     }
 
     const { email, password, firstName, lastName } = parsedataWithSuccess.data;
-
+    const hashedPassword =await bcrypt.hash(password, 10);
     await adminModel.create({
       email: email,
-      password: password,
+      password: hashedPassword,
       firstName: firstName,
       lastName: lastName,
     });
@@ -71,6 +72,13 @@ adminRouter.post("/login", async function (req, res) {
       return res.status(403).json({
         meassage: "User not found! Please login!",
       });
+    }
+
+    const isMatched =await bcrypt.compare(password, findUser.password);
+    if(!isMatched){
+      return res.status(400).json({
+        message : "Incorrect Credentials"
+      })
     }
     const token = jwt.sign(
       {

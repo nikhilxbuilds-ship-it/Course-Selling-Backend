@@ -1,6 +1,7 @@
 const { Router } = require("express");
 const jwt = require("jsonwebtoken");
 const { config } = require("dotenv");
+const bcrypt = require("bcrypt");
 require("dotenv").config();
 const userRouter = Router();
 const { z } = require("zod");
@@ -26,10 +27,10 @@ userRouter.post("/signup", async function (req, res) {
     }
 
     const { email, password, firstName, lastName } = parsedataWithSuccess.data;
-
-    const user = await userModel.create({
+    const hashedPassword = await bcrypt.hash(password, 10);
+    await userModel.create({
       email: email,
-      password: password,
+      password: hashedPassword,
       firstName: firstName,
       lastName: lastName,
     });
@@ -38,6 +39,7 @@ userRouter.post("/signup", async function (req, res) {
       massage: "You are Signup!",
     });
   } catch (error) {
+    console.log(error);
     res.status(500).json({
       message: "Internal server error",
       Error: error,
@@ -71,6 +73,12 @@ userRouter.post("/login", async function (req, res) {
         meassage: "User not found! Please login!",
       });
     }
+    const isMatched = await bcrypt.compare(password, findUser.password);
+    if (!isMatched) {
+      return res.status(403).json({
+        message: "Invalid credentials",
+      });
+    }
     const token = jwt.sign(
       {
         id: findUser._id,
@@ -82,6 +90,7 @@ userRouter.post("/login", async function (req, res) {
       token,
     });
   } catch (error) {
+    console.log(error);
     res.status(500).json({
       message: "Internal server error",
       Error: error,
